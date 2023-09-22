@@ -10,12 +10,12 @@ In ordering to run our LLM we require a computer with GPU,  LLMs with higher nub
 
 | **Instance Size** | **GPU** | **vCPUs** | **Memory (GiB)** | **Instance Storage (GB)** | **Network Bandwidth (Gbps)** | **EBS Bandwidth (Gbps)** | **On-Demand Price/hr\*** | **1-yr Reserved Instance Effective Hourly\* (Linux)** | **3-yr Reserved Instance Effective Hourly\* (Linux)** |      |
 | ----------------- | ------- | --------- | ---------------- | ------------------------- | ---------------------------- | ------------------------ | ------------------------ | ----------------------------------------------------- | ----------------------------------------------------- | ---- |
-| g4ad.xlarge       | 1       | 4         | 16               | 1 x 150 NVMe SSD          | Up to 10                     | Up to 3                  | $0.379                   | $0.227                                                | $0.178                                                |      |
 | g4dn.xlarge       | 1       | 4         | 16               | 1 x 125 NVMe SSD          | Up to 25                     | Up to 3.5                | $0.526                   | $0.316                                                | $0.210                                                |      |
 | g4dn.2xlarge      | 1       | 8         | 32               | 1 x 225 NVMe SSD          | Up to 25                     | Up to 3.5                | $0.752                   | $0.452                                                | $0.300                                                |      |
 | g4dn.4xlarge      | 1       | 16        | 64               | 1 x 225 NVMe SSD          | Up to 25                     | 4.75                     | $1.204                   | $0.722                                                | $0.482                                                |      |
 | g4dn.8xlarge      | 1       | 32        | 128              | 1 x 900 NVMe SSD          | 50                           | 9.5                      | $2.176                   | $1.306                                                | $0.870                                                |      |
 | g4dn.16xlarge     | 1       | 64        | 256              | 1 x 900 NVMe SSD          | 50                           | 9.5                      | $4.352                   | $2.612                                                | $1.740                                                |      |
+|                   |         |           |                  |                           |                              |                          |                          |                                                       |                                                       |      |
 |                   |         |           |                  |                           |                              |                          |                          |                                                       |                                                       |      |
 
 \* Prices shown are for US East (Northern Virginia) AWS Region. Prices for 1-year and 3-year reserved instances are for "Partial Upfront" payment options or "No Upfront" for instances without the Partial Upfront option.
@@ -118,10 +118,6 @@ If we want to save money we must put spot.
 
 ​	
 
-
-
-
-
 # Python Installation
 
 Add the `deadsnakes` PPA repository to the system next. The simplest method for installing Python 3.10 is as follows:
@@ -161,6 +157,12 @@ sudo apt update && sudo apt upgrade
 ```
 sudo apt autoremove nvidia* --purge
 ```
+
+```
+sudo apt install ubuntu-drivers-common
+```
+
+
 
 ### Check Ubuntu devices
 
@@ -274,6 +276,12 @@ print(t.device) # should be CUDA
 
 
 ----------------
+
+![image-20230922221439309](assets/images/posts/README/image-20230922221439309.png)
+
+
+
+
 
 # **2. Install CUDA/cuDNN on the GPU Instance**
 
@@ -440,6 +448,22 @@ To use the model features and tools, install Jupyter Notebook to run commands, t
    ```
    http://SERVER-IP:8888/tree?token=YOUR=TOKEN
    ```
+
+ http://54.152.53.77:8888/tree?token=7772646a5c9f452aa1e8e9b8ad293f3fbb4765159f3f6829
+
+```
+pip3 install ipykernel notebook
+
+```
+
+
+
+```
+python3 -m ipykernel install --user --name GPT --display-name "Python (GPT)"
+
+```
+
+
 
 ## Run Llama 2 70B Model
 
