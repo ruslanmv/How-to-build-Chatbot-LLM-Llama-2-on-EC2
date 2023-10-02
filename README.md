@@ -96,27 +96,58 @@ For production for sure you can remove the SSH and the Jupyter Notebook ports.
 
 ## Launch EC2 Instance
 
-We go to EC2 and we create an instance **Chatbot-LLM** and we choose **Ubuntu 22.04** with server **g4ad.xlarge**
+We go to EC2 and we create an instance **Chatbot** and we choose **Ubuntu 22.04** with server **g4dn.xlarge**
 
-![image-20230919205744123](assets/images/posts/README/image-20230919205744123.png)
-
-
-
-we create a private key and for security group select existing security group ,  **Chatbot with Streamlit**
-
-![image-20230919211910370](assets/images/posts/README/image-20230919211910370.png)
+![image-20231002214752315](assets/images/posts/README/image-20231002214752315.png)
 
 
 
-![image-20230919214816073](assets/images/posts/README/image-20230919214816073.png)
+we create a private key, **you download this key**  because we will  use later  and for security group select existing security group ,  **Chatbot with Streamlit**,
 
-If we want to save money we must put spot. 
+![image-20231002214902234](assets/images/posts/README/image-20231002214902234.png)
+
+Then we require to add additional storage space to our Virtual Instance, we choose 100gb
+
+![image-20231002215129289](assets/images/posts/README/image-20231002215129289.png)
+
+
+
+If we want to save money , in **Advanced details** we must put **spot.** 
 
 ![image-20230919214933335](assets/images/posts/README/image-20230919214933335.png)
 
+and we keep all the reamaining settings as default and click launch
+
+![image-20231002215435058](assets/images/posts/README/image-20231002215435058.png)
+
+Be **aware** that now time is money. So **do not forget to delete your instance** after you finish this demo.
+
+Now the Instance is initializing , we wait few minutes and then we click on **Connect** 
+
+​	![image-20231002220022923](assets/images/posts/README/image-20231002220022923.png)
+
+then we select the **SSH Client**
+
+![image-20231002220110688](assets/images/posts/README/image-20231002220110688.png)
 
 
-​	
+
+Then we have to open our terminal, then go where you downloaded your private key
+
+1. Run this command, if necessary, to ensure your key is not publicly viewable.
+2. ```
+    chmod 400 MyPrivateKey.pem
+   ```
+
+3. Connect to your instance using its Public DNS for example:
+
+```
+ ssh -i "MyPrivateKey.pem" ubuntu@ec2-3-234-217-147.compute-1.amazonaws.com
+```
+
+and you will got something like
+
+![image-20231002220549481](assets/images/posts/README/image-20231002220549481.png)
 
 # Python Installation
 
@@ -132,47 +163,53 @@ Use this command to install Python 3.10
 sudo apt install python3.10 -y
 ```
 
-### Step 5: Validate Python Version
+we click in OK	
+
+![image-20231002220705001](assets/images/posts/README/image-20231002220705001.png)
+
+​	we check the Python Version
 
 ```bash
 python3 --version
 ```
 
+![image-20231002220753015](assets/images/posts/README/image-20231002220753015.png)
+
+then we install our friend pip
+
 ```
-sudo apt install python3-pip
+sudo apt install python3-pip -y
 ```
 
-
+![image-20231002220853783](assets/images/posts/README/image-20231002220853783.png)
 
 # Install CUDA & cuDNN 
 
 ### Update & upgrade
 
 ```
-sudo apt update && sudo apt upgrade
+sudo apt update && sudo apt upgrade -y
 ```
 
-### Remove previous NVIDIA installation
+Just in case you want to remove previous NVIDIA installation you can do `sudo apt autoremove nvidia* --purge`, but we skip.
 
 ```
-sudo apt autoremove nvidia* --purge
-```
-
-```
-sudo apt install ubuntu-drivers-common
+sudo apt install ubuntu-drivers-common -y
 ```
 
 
 
-### Check Ubuntu devices
+## Check Ubuntu devices
 
 ```
 ubuntu-drivers devices
 ```
 
+![image-20231002221249412](assets/images/posts/README/image-20231002221249412.png)
+
 You will install the NVIDIA driver whose version is tagged with **recommended**
 
-### Install Ubuntu drivers
+## Install Ubuntu drivers
 
 ```
 sudo ubuntu-drivers autoinstall
@@ -183,33 +220,43 @@ sudo ubuntu-drivers autoinstall
 My **recommended** version is 525, adapt to yours
 
 ```
-sudo apt install nvidia-driver-525
+sudo apt install nvidia-driver-525 -y
 ```
+
+
+
+![image-20231002221922525](assets/images/posts/README/image-20231002221922525.png)
 
 ### Reboot & Check
 
+IF you were not on the cloud you can simply type `reboot` but here we have to reboot our instanced manually
+
 ```
-reboot
+exit
 ```
 
-after restart verify that the following command works
+![image-20231002222204934](assets/images/posts/README/image-20231002222204934.png)
+
+after that we reconnect via ssh  verify that the following command works
 
 ```
 nvidia-smi
 ```
 
+and wualla
+
+
+
+![image-20231002222327748](assets/images/posts/README/image-20231002222327748.png)
+
+ that is <img src="assets/images/posts/README/image-20231002222952319.png" alt="image-20231002222952319" style="zoom:1000%;" />
+
 ## Install CUDA drivers
-
-### Update & upgrade
-
-```
-sudo apt update && sudo apt upgrade
-```
 
 ### Install CUDA toolkit
 
 ```
-sudo apt install nvidia-cuda-toolkit
+sudo apt install nvidia-cuda-toolkit -y
 ```
 
 ### Check CUDA install
@@ -217,6 +264,12 @@ sudo apt install nvidia-cuda-toolkit
 ```
 nvcc --version
 ```
+
+
+
+![image-20231002223426097](assets/images/posts/README/image-20231002223426097.png)
+
+
 
 ## Install cuDNN
 
@@ -228,11 +281,38 @@ You can download cuDNN file [here](https://developer.nvidia.com/rdp/cudnn-downlo
 nvcc --version
 ```
 
+![image-20231002223757709](assets/images/posts/README/image-20231002223757709.png)
+
+
+
+
+
+## Transferring Files Using SCP 
+
+Secure Copy Protocol (SCP) is a means of securely transferring computer files between a local and a remote host or between two remote hosts. It’s based on the Secure Shell (SSH) protocol.
+
+To copy a file from your local system to your EC2 instance, use the following command:
+
+```bash
+scp -i "MyPrivateKey.pem" C:\Users\Downloads\cudnn-local-repo-ubuntu2204-8.9.5.29_1.0-1_amd64.deb  ubuntu@ec2-3-234-217-147.compute-1.amazonaws.com:/home/ubuntu
+
+```
+
+and you can check if was uploaded
+
+![image-20231002230100421](assets/images/posts/README/image-20231002230100421.png)
+
 ### Install cuDNN
 
 ```
-sudo apt install ./<filename.deb>
-sudo cp /var/cudnn-<something>.gpg /usr/share/keyrings/
+sudo apt install ./cudnn-local-repo-ubuntu2204-8.9.5.29_1.0-1_amd64.deb
+
+```
+
+![image-20231002230324775](assets/images/posts/README/image-20231002230324775.png)
+
+```
+sudo cp /var/cudnn-local-repo-ubuntu2204-8.9.5.29/cudnn-local-535C49CB-keyring.gpg /usr/share/keyrings/
 ```
 
 My cuDNN version is 8, adapt the following to your version:
@@ -243,6 +323,10 @@ sudo apt install libcudnn8
 sudo apt install libcudnn8-dev
 sudo apt install libcudnn8-samples
 ```
+
+![image-20231002230822442](assets/images/posts/README/image-20231002230822442.png)
+
+
 
 ## Test CUDA on Pytorch
 
@@ -255,113 +339,61 @@ virtualenv -p py3.10 venv
 source venv/bin/activate
 ```
 
+![image-20231002231032899](assets/images/posts/README/image-20231002231032899.png)
+
 ### Install pytorch
 
 ```
 pip3 install torch torchvision torchaudio
 ```
 
+![image-20231002231403794](assets/images/posts/README/image-20231002231403794.png)
+
+
+
 ### Open Python and execute a test
+
+
 
 ```
 import torch
 print(torch.cuda.is_available()) # should be True
+```
 
+![image-20231002231554867](assets/images/posts/README/image-20231002231554867.png)
+
+```
 t = torch.rand(10, 10).cuda()
 print(t.device) # should be CUDA
 ```
 
+![image-20231002231624969](assets/images/posts/README/image-20231002231624969.png)
 
+# Create an AMI from an Amazon EC2 Instance
 
+In ordering to save our EC2 Instance Setup that we have done before  got to **Amazon EC2 Instances** view, you can create Amazon Machine Images (AMIs) from either running or stopped instances. 
 
+*To create an AMI from an instance*
 
-----------------
+1. Right-click the instance you want to use as the basis for your AMI, and choose **Create Image** from the context menu.
 
-![image-20230922221439309](assets/images/posts/README/image-20230922221439309.png)
+   ![image-20231002231900549](assets/images/posts/README/image-20231002231900549.png)
 
+   **Create Image** context menu
 
+2. In the **Create Image** dialog box, type a unique name and description, and then choose **Create Image**. By default, Amazon EC2 shuts down the instance, takes snapshots of any attached volumes, creates and registers the AMI, and then reboots the instance. Choose **No reboot**if you don't want your instance to be shut down.
 
+   
 
+   ###### Warning
 
-# **2. Install CUDA/cuDNN on the GPU Instance**
+   If you choose **No reboot**, we can't guarantee the file system integrity of the created image.
 
-## NVIDIA Driver
+   ![image-20231002232421856](assets/images/posts/README/image-20231002232421856.png)
 
-Update the graphic driver:
+   **Create Image** dialog box
 
-```
-$ sudo add-apt-repository ppa:graphics-drivers/ppa -y
-$ sudo apt-get update
-$ sudo apt-get install -y nvidia-375 nvidia-settings
-```
-
-## **CUDA**
-
-SSH into the EC2 GPU Instance:
-
-```
-$ ssh -i ~/folder_key_pair/key_pair.pem ubuntu@public_dns_ec2
-```
-
-Download CUDA 8.0 first e.g. to your $HOME folder (*/home/ubuntu*):
-
-```
-$ wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
-```
-
-Install CUDA:
-
-```
-$ sudo dpkg -i cuda-repo-ubuntu1604-8-0-local_8.0.44-1_amd64-deb
-$ sudo apt-get update
-$ sudo apt-get install -y cuda nvidia-cuda-toolkit
-```
-
-Check if everything was installed correctly:
-
-```
-$ nvidia-smi
-```
-
-![img](assets/images/posts/README/10QFCFIsO1oN5tbprO680PA.png)
-
-```
-$ nvcc --version
-```
-
-![img](assets/images/posts/README/1tlBcy6mxD0Mcsq1nYKw9uA.png)
-
-## **cuDNN**
-
-Next, register an account on [NVIDIA’s Accelerated Computing Developer Program](https://developer.nvidia.com/cudnn) and download cuDNN to your local machine:
-
-![image-20230919225215073](assets/images/posts/README/image-20230919225215073.png)
-
-Select cuDNN v5 Library for Linux
-
-SCP the TAR archive file to the EC2 GPU instance:
-
-```
-$ scp -i ~/folder_key_pair/key_pair.pem ~/folder_tar_file/cudnn-8.0-linux-x64-v5.0-ga.tgz ubuntu@public_dns_ec2:/home/ubuntu/
-```
-
-SSH into the EC2 GPU instance and untar the file:
-
-```
-$ tar -zxvf cudnn-8.0-linux-x64-v5.0-ga.tgz
-```
-
-Finally, open the *.bashrc* and then add this:
-
-```
-export LD_LIBRARY_PATH=/home/ubuntu/cuda/lib64:$LD_LIBRARY_PATHexport CPATH=/home/ubuntu/cuda/include:$CPATHexport LIBRARY_PATH=/home/ubuntu/cuda/lib64:$LD_LIBRARY_PATH
-```
-
-Reload the *.bashrc:*
-
-```
-$ source ~/.bashrc
-```
+It may take a few minutes for the AMI to be created. After it is created, it will appear in the **AMIs** view in AWS Explorer. To display this view, double-click the **Amazon EC2 | AMIs** node in AWS Explorer. To see your AMIs, from the **Viewing** drop-down list, choose **Owned By Me**. You may need to choose **Refresh** to see your AMI. When the AMI first appears, it may be in a pending state, but after a few moments, it transitions to an available state.
 
 ## Install Model Dependencies
 
@@ -397,9 +429,8 @@ To use the model features and tools, install Jupyter Notebook to run commands, t
    ```
    pip3 install notebook
    sudo -H pip install jupyter
-   
    ```
-
+   
 4. Allow incoming connections to the Jupyter Notebook port `8888`.
 
    ```
@@ -411,8 +442,6 @@ To use the model features and tools, install Jupyter Notebook to run commands, t
    ```
    curl http://checkip.amazonaws.com
    ```
-
-   
 
 6. Start Jupyter Notebook.
 
@@ -456,14 +485,10 @@ pip3 install ipykernel notebook
 
 ```
 
-
-
 ```
 python3 -m ipykernel install --user --name GPT --display-name "Python (GPT)"
 
 ```
-
-
 
 ## Run Llama 2 70B Model
 
